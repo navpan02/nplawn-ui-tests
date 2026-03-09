@@ -1,0 +1,17 @@
+{
+  "name": "nplawn-ui-tests",
+  "version": "1.0.0",
+  "description": "Playwright UI tests for NPLawn LLC marketing site",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:critical": "playwright test --grep @critical",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "dotenv": "^16.0.0"
+  }
+}
