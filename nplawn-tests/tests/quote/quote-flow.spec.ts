@@ -89,13 +89,17 @@ test.describe('Quote Form @critical', () => {
     });
     await quote.selectFrequency('Weekly').catch(() => {});
 
-    // Submit — React forms may not use type="submit"; try broad selector then fallback
-    const submitBtn = page.locator('button[type="submit"]').last();
-    const reactSubmitBtn = quote.submitButton;
-    if (await submitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await submitBtn.click();
-    } else if (await reactSubmitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await reactSubmitBtn.click();
+    // Submit — try progressively broader selectors until one is visible
+    const submitCandidates = [
+      page.locator('button[type="submit"]').last(),
+      quote.submitButton,
+      page.locator('button').last(),
+    ];
+    for (const btn of submitCandidates) {
+      if (await btn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        await btn.click();
+        break;
+      }
     }
 
     // Confirmation page: /quote/thanks
