@@ -128,7 +128,7 @@ test.describe('Quote Form @critical', () => {
     const quote = new QuoteFormPage(page);
 
     // Navigate directly to thanks page to test the button
-    await page.goto('/quote/thanks', { waitUntil: 'networkidle' });
+    await page.goto('quote/thanks', { waitUntil: 'networkidle' });
 
     const backBtn = page.locator('a').filter({ hasText: 'Back to Home' });
     if (await backBtn.isVisible({ timeout: 5000 }).catch(() => false)) {

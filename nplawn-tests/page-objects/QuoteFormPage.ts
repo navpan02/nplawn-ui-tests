@@ -62,7 +62,7 @@ export class QuoteFormPage {
   }
 
   async goto() {
-    await this.page.goto('/quote');
+    await this.page.goto('quote');
     await this.page.waitForLoadState('networkidle');
   }
 

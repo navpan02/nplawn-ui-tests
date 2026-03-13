@@ -46,7 +46,7 @@ export class ContactFormPage {
   }
 
   async goto() {
-    await this.page.goto('/contact');
+    await this.page.goto('contact');
     await this.page.waitForLoadState('networkidle');
   }
 
