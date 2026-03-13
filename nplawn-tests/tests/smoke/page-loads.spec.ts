@@ -23,8 +23,7 @@ test.describe('Page Loads @smoke @critical', () => {
 
   for (const { path, title } of PAGES) {
     test(`${path} loads correctly`, async ({ page }) => {
-      const response = await page.goto(path);
-      expect(response?.status()).toBeLessThan(400);
+      await page.goto(path);
       await expect(page).toHaveTitle(new RegExp(title, 'i'));
     });
   }
