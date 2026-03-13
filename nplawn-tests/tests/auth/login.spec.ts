@@ -69,6 +69,10 @@ test.describe('Login Page @critical', () => {
     await login.goto();
     await login.login(EMAIL, PASSWORD);
 
+    // Detect wrong credentials early instead of hitting the 15s timeout
+    const loginRejected = await login.errorMessage.isVisible({ timeout: 5_000 }).catch(() => false);
+    expect(loginRejected, 'Credentials rejected by Supabase — verify TEST_USER_EMAIL / TEST_USER_PASSWORD in GitHub Secrets').toBe(false);
+
     // Should redirect away from /login to /, /admin, or /CleanLawn/provider
     await page.waitForURL(url => !url.pathname.endsWith('/login'), { timeout: 15_000 });
     expect(page.url()).not.toContain('/login');

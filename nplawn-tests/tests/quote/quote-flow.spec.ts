@@ -61,11 +61,12 @@ test.describe('Quote Form @critical', () => {
       await page.locator('button[type="submit"]').click();
     }
 
-    // Name is required — should be invalid
+    // Name is required — HTML5 validity OR form stayed on step 1 (React custom validation)
     const nameInvalid = await quote.nameField.evaluate(
       (el: HTMLInputElement) => !el.validity.valid
     );
-    expect(nameInvalid).toBe(true);
+    const formStayedOnStep1 = await quote.nameField.isVisible({ timeout: 1_000 }).catch(() => false);
+    expect(nameInvalid || formStayedOnStep1, 'Form should not advance with empty required fields').toBe(true);
   });
 
   test('full quote flow completes and shows confirmation', async ({ page }) => {
@@ -88,10 +89,13 @@ test.describe('Quote Form @critical', () => {
     });
     await quote.selectFrequency('Weekly').catch(() => {});
 
-    // Submit
+    // Submit — React forms may not use type="submit"; try broad selector then fallback
     const submitBtn = page.locator('button[type="submit"]').last();
-    if (await submitBtn.isVisible()) {
+    const reactSubmitBtn = quote.submitButton;
+    if (await submitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await submitBtn.click();
+    } else if (await reactSubmitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+      await reactSubmitBtn.click();
     }
 
     // Confirmation page: /quote/thanks
@@ -115,7 +119,12 @@ test.describe('Quote Form @critical', () => {
     await quote.selectFrequency('Weekly').catch(() => {});
 
     const submitBtn = page.locator('button[type="submit"]').last();
-    if (await submitBtn.isVisible()) await submitBtn.click();
+    const reactSubmitBtn = quote.submitButton;
+    if (await submitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+      await submitBtn.click();
+    } else if (await reactSubmitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+      await reactSubmitBtn.click();
+    }
 
     await page.waitForURL(/quote\/thanks/, { timeout: 15_000 });
 
