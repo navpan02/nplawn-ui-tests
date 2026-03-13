@@ -19,7 +19,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: 'https://navpan02.github.io/NP02',
+    baseURL: 'https://navpan02.github.io/NP02/',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'on-first-retry',

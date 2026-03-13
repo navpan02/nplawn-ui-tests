@@ -8,15 +8,15 @@ import { HomePage } from '../../page-objects/HomePage';
  */
 
 const PAGES = [
-  { path: '/',               title: 'NPLawn LLC'         },
-  { path: '/about',          title: 'NPLawn'             },
-  { path: '/contact',        title: 'NPLawn'             },
-  { path: '/lawn-care',      title: 'NPLawn'             },
-  { path: '/tree-shrubs',    title: 'NPLawn'             },
-  { path: '/quote',          title: 'NPLawn'             },
-  { path: '/how-it-works',   title: 'NPLawn'             },
-  { path: '/faq',            title: 'NPLawn'             },
-  { path: '/blog',           title: 'NPLawn'             },
+  { path: './',              title: 'NPLawn LLC'         },
+  { path: 'about',           title: 'NPLawn'             },
+  { path: 'contact',         title: 'NPLawn'             },
+  { path: 'lawn-care',       title: 'NPLawn'             },
+  { path: 'tree-shrubs',     title: 'NPLawn'             },
+  { path: 'quote',           title: 'NPLawn'             },
+  { path: 'how-it-works',    title: 'NPLawn'             },
+  { path: 'faq',             title: 'NPLawn'             },
+  { path: 'blog',            title: 'NPLawn'             },
 ];
 
 test.describe('Page Loads @smoke @critical', () => {
@@ -76,7 +76,7 @@ test.describe('Home Page UI @smoke @critical', () => {
       if (msg.type() === 'error') errors.push(msg.text());
     });
 
-    await page.goto('/');
+    await page.goto('./');
     await page.waitForLoadState('networkidle');
 
     // Ignore known non-critical errors (e.g. browser extension noise)
