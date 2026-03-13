@@ -27,7 +27,7 @@ export class HomePage {
 
     this.heroBadge         = page.locator('text=Locally Owned Since 2017');
     this.heroHeading       = page.locator('h1').filter({ hasText: 'Your Lawn' });
-    this.buyNowButton      = page.locator('a[href*="buy-now"]').filter({ hasText: 'Buy Now' });
+    this.buyNowButton      = page.locator('a[href*="buy-now"]').filter({ hasText: 'Buy Now' }).first();
     this.viewServicesButton= page.locator('a[href*="lawn-care"]').filter({ hasText: 'View Services' });
 
     this.stat500           = page.locator('text=500+');

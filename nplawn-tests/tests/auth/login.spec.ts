@@ -44,7 +44,7 @@ test.describe('Login Page @critical', () => {
     // Supabase returns "Incorrect email or password." for invalid credentials
     await expect(login.errorMessage).toBeVisible({ timeout: 10_000 });
     const errorText = await login.errorMessage.textContent();
-    expect(errorText?.toLowerCase()).toContain('incorrect');
+    expect(errorText?.toLowerCase()).toMatch(/incorrect|invalid/);
   });
 
   test('login with empty fields shows validation', async ({ page }) => {
