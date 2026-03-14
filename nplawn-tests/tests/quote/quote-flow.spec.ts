@@ -73,69 +73,68 @@ test.describe('Quote Form @critical', () => {
     const quote = new QuoteFormPage(page);
     await quote.goto();
 
-    // Step 1: Fill personal details
+    // ── Step 1: Fill personal details ─────────────────────────────────────────
     await quote.fillStep1(VALID_STEP1);
 
-    // Advance to step 2 — try click, fall back to force: true
-    const nextBtn = page.locator('button').filter({ hasText: /next|continue/i }).first();
-    try {
-      await nextBtn.click({ timeout: 3_000 });
-    } catch {
-      try { await nextBtn.click({ force: true }); } catch { /* single-step form */ }
-    }
-    await page.waitForTimeout(800);
-
-    // Step 2: Select a service — try exact text, then partial, then first non-nav button in main
-    const serviceClicked = await quote.selectService('Lawn Mowing')
-      .then(() => true)
-      .catch(() => false);
-    if (!serviceClicked) {
-      for (const sel of [
-        'button[aria-pressed]',
-        'main button[type="button"]',
-        '[role="button"]',
-      ]) {
-        try {
-          await page.locator(sel).first().click({ timeout: 1_500 });
-          break;
-        } catch { /* try next */ }
+    // ── Advance to step 2 ─────────────────────────────────────────────────────
+    // type="button" buttons don't submit the form — the Next button uses that type.
+    // Try the page-object definition first, then last type="button", then by text.
+    for (const btn of [
+      quote.nextButton.first(),
+      page.locator('button[type="button"]').last(),
+      page.locator('button').filter({ hasText: /next|continue|step 2|proceed/i }).first(),
+    ]) {
+      try {
+        await btn.scrollIntoViewIfNeeded({ timeout: 1_000 });
+        await btn.click({ timeout: 3_000 });
+        break;
+      } catch {
+        try { await btn.click({ force: true, timeout: 1_500 }); break; } catch { /* try next */ }
       }
     }
 
-    // Step 2: Select a frequency
-    const freqClicked = await quote.selectFrequency('Weekly')
-      .then(() => true)
-      .catch(() => false);
-    if (!freqClicked) {
-      await page.locator('button').filter({ hasText: /week|bi.?week|month|one.?time|quarter/i })
-        .first().click({ timeout: 1_500 }).catch(() => {});
+    // Wait for step 2 to render — #name should become hidden
+    await page.locator('#name').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {
+      // Form may be single-step — proceed anyway
+    });
+
+    // ── Step 2: Select a service ───────────────────────────────────────────────
+    for (const fn of [
+      () => quote.selectService('Lawn Mowing'),
+      () => page.locator('button').filter({ hasText: /lawn/i }).first().click({ timeout: 2_000 }),
+      () => page.locator('[role="button"]').filter({ hasText: /lawn|mow/i }).first().click({ timeout: 2_000 }),
+      () => page.locator('button[aria-pressed]').first().click({ timeout: 2_000 }),
+      () => page.locator('main button[type="button"]').first().click({ timeout: 2_000 }),
+    ]) {
+      try { await fn(); break; } catch { /* try next */ }
     }
 
-    // Submit — scroll into view, try click, force as last resort
-    // Scope to main/form to avoid nav/footer buttons
-    const submitCandidates = [
+    // ── Step 2: Select a frequency ────────────────────────────────────────────
+    for (const fn of [
+      () => quote.selectFrequency('Weekly'),
+      () => page.locator('button').filter({ hasText: /weekly/i }).first().click({ timeout: 2_000 }),
+      () => page.locator('button').filter({ hasText: /week/i }).first().click({ timeout: 2_000 }),
+    ]) {
+      try { await fn(); break; } catch { /* try next */ }
+    }
+
+    // ── Submit step 2 ─────────────────────────────────────────────────────────
+    for (const btn of [
       quote.submitButton,
       page.locator('main button[type="submit"]').last(),
       page.locator('form button[type="submit"]').last(),
       page.locator('main button').last(),
-    ];
-    let submitted = false;
-    for (const btn of submitCandidates) {
+    ]) {
       try {
         await btn.scrollIntoViewIfNeeded({ timeout: 1_500 });
         await btn.click({ timeout: 3_000 });
-        submitted = true;
         break;
       } catch {
-        try {
-          await btn.click({ force: true, timeout: 2_000 });
-          submitted = true;
-          break;
-        } catch { /* try next candidate */ }
+        try { await btn.click({ force: true, timeout: 2_000 }); break; } catch { /* try next */ }
       }
     }
 
-    // Confirmation page: /quote/thanks
+    // ── Confirmation page ─────────────────────────────────────────────────────
     await page.waitForURL(/quote\/thanks/, { timeout: 15_000 });
     await expect(quote.confirmationHeading).toBeVisible({ timeout: 10_000 });
     await expect(quote.backHomeButton).toBeVisible();
@@ -145,27 +144,42 @@ test.describe('Quote Form @critical', () => {
     const quote = new QuoteFormPage(page);
     await quote.goto();
 
+    // ── Step 1 ────────────────────────────────────────────────────────────────
     await quote.fillStep1(VALID_STEP1);
 
-    const nextBtn = page.locator('button').filter({ hasText: /next|continue/i }).first();
-    try {
-      await nextBtn.click({ timeout: 3_000 });
-    } catch {
-      try { await nextBtn.click({ force: true }); } catch { /* single-step form */ }
-    }
-    await page.waitForTimeout(800);
-
-    const serviceClicked = await quote.selectService('Lawn Mowing').then(() => true).catch(() => false);
-    if (!serviceClicked) {
-      for (const sel of ['button[aria-pressed]', 'main button[type="button"]', '[role="button"]']) {
-        try { await page.locator(sel).first().click({ timeout: 1_500 }); break; } catch { /* try next */ }
+    for (const btn of [
+      quote.nextButton.first(),
+      page.locator('button[type="button"]').last(),
+      page.locator('button').filter({ hasText: /next|continue|step 2|proceed/i }).first(),
+    ]) {
+      try {
+        await btn.scrollIntoViewIfNeeded({ timeout: 1_000 });
+        await btn.click({ timeout: 3_000 });
+        break;
+      } catch {
+        try { await btn.click({ force: true, timeout: 1_500 }); break; } catch { /* try next */ }
       }
     }
 
-    const freqClicked = await quote.selectFrequency('Weekly').then(() => true).catch(() => false);
-    if (!freqClicked) {
-      await page.locator('button').filter({ hasText: /week|bi.?week|month|one.?time|quarter/i })
-        .first().click({ timeout: 1_500 }).catch(() => {});
+    await page.locator('#name').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+
+    // ── Step 2 ────────────────────────────────────────────────────────────────
+    for (const fn of [
+      () => quote.selectService('Lawn Mowing'),
+      () => page.locator('button').filter({ hasText: /lawn/i }).first().click({ timeout: 2_000 }),
+      () => page.locator('[role="button"]').filter({ hasText: /lawn|mow/i }).first().click({ timeout: 2_000 }),
+      () => page.locator('button[aria-pressed]').first().click({ timeout: 2_000 }),
+      () => page.locator('main button[type="button"]').first().click({ timeout: 2_000 }),
+    ]) {
+      try { await fn(); break; } catch { /* try next */ }
+    }
+
+    for (const fn of [
+      () => quote.selectFrequency('Weekly'),
+      () => page.locator('button').filter({ hasText: /weekly/i }).first().click({ timeout: 2_000 }),
+      () => page.locator('button').filter({ hasText: /week/i }).first().click({ timeout: 2_000 }),
+    ]) {
+      try { await fn(); break; } catch { /* try next */ }
     }
 
     for (const btn of [
@@ -183,10 +197,9 @@ test.describe('Quote Form @critical', () => {
       }
     }
 
+    // ── Confirmation ──────────────────────────────────────────────────────────
     await page.waitForURL(/quote\/thanks/, { timeout: 15_000 });
-
     const heading = await quote.confirmationHeading.textContent();
-    // Heading should say "You're all set, Playwright Test!"
     expect(heading).toContain('Playwright Test');
   });
 
