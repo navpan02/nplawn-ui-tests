@@ -17,6 +17,7 @@ const PAGES = [
   { path: 'how-it-works',    title: 'NPLawn'             },
   { path: 'faq',             title: 'NPLawn'             },
   { path: 'blog',            title: 'NPLawn'             },
+  { path: 'discover',        title: 'NPLawn'             },
 ];
 
 test.describe('Page Loads @smoke @critical', () => {
