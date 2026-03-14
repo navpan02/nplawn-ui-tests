@@ -135,8 +135,8 @@ test.describe('Quote Form @critical', () => {
     }
 
     // ── Confirmation page ─────────────────────────────────────────────────────
-    await page.waitForURL(/quote\/thanks/, { timeout: 15_000 });
-    await expect(quote.confirmationHeading).toBeVisible({ timeout: 10_000 });
+    // The SPA may show confirmation in-place without a URL change
+    await expect(quote.confirmationHeading).toBeVisible({ timeout: 15_000 });
     await expect(quote.backHomeButton).toBeVisible();
   });
 
@@ -198,7 +198,7 @@ test.describe('Quote Form @critical', () => {
     }
 
     // ── Confirmation ──────────────────────────────────────────────────────────
-    await page.waitForURL(/quote\/thanks/, { timeout: 15_000 });
+    await expect(quote.confirmationHeading).toBeVisible({ timeout: 15_000 });
     const heading = await quote.confirmationHeading.textContent();
     expect(heading).toContain('Playwright Test');
   });

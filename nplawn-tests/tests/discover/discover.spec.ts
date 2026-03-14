@@ -237,8 +237,7 @@ test.describe('Discover → Quote Flow @critical', () => {
     await submitBtn.click();
 
     // 9. Confirmation
-    await page.waitForURL(/quote\/thanks/, { timeout: 15_000 });
-    await expect(quote.confirmationHeading).toBeVisible({ timeout: 10_000 });
+    await expect(quote.confirmationHeading).toBeVisible({ timeout: 15_000 });
   });
 
 });

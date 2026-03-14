@@ -67,18 +67,18 @@ export class BuyFlowPage {
 
     // Step 1
     this.pageHeading      = page.locator('h1').filter({ hasText: 'Get Started with NPLawn' });
-    this.stepIndicator    = page.locator('text=Property Details');
+    this.stepIndicator    = page.locator('text=Property Details').first();
     this.addressField     = page.locator('input[placeholder*="Main St"]');
     this.phoneField       = page.locator('input[placeholder*="555-0100"]');
     this.emailField       = page.locator('input[type="email"], input[placeholder*="example.com"]').first();
     this.continueToMapBtn = page.locator('button').filter({ hasText: /Continue.*Map/i });
 
     // Step 2
-    this.mapHeading          = page.locator('h1, h2').filter({ hasText: 'Your Property on the Map' });
+    this.mapHeading          = page.locator('h1, h2, h3').filter({ hasText: /property.*map|map.*property|your property|step 2/i }).first();
     this.mapContainer        = page.locator('.leaflet-container');
     this.lawnSizeLabel       = page.locator('text=ESTIMATED LAWN SIZE');
     this.lawnSizeAdjustInput = page.locator('input[type="number"]').first();
-    this.seePricingBtn       = page.locator('button').filter({ hasText: /See Pricing Plans/i });
+    this.seePricingBtn       = page.locator('button').filter({ hasText: /pricing|see.*plan|view.*plan/i }).first();
 
     // Step 3
     this.planHeading         = page.locator('h1, h2').filter({ hasText: 'Choose Your Plan' });

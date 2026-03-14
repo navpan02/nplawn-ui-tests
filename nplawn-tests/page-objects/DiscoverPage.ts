@@ -70,15 +70,15 @@ export class DiscoverPage {
                                   .or(page.locator('[class*="sort"] select, [class*="sort"] button').first());
     this.filtersButton      = page.locator('button').filter({ hasText: /^filters$/i });
 
-    // Provider cards — the card wrappers contain both "View Profile" and "Get Quote"
-    this.providerCards    = page.locator('main').locator('[class*="card"], [class*="provider"]').filter({ has: page.locator('button', { hasText: /view profile/i }) });
-    this.firstViewProfile = page.locator('button').filter({ hasText: /view profile/i }).first();
-    this.firstGetQuote    = page.locator('main').locator('button').filter({ hasText: /^get quote$/i }).first();
+    // Provider cards — "View Profile" and "Get Quote" are <a> or <button> elements
+    this.providerCards    = page.locator('main').locator('[class*="card"], [class*="provider"]').filter({ has: page.locator('a, button', { hasText: /view profile/i }) });
+    this.firstViewProfile = page.locator('a, button').filter({ hasText: /view profile/i }).first();
+    this.firstGetQuote    = page.locator('main').locator('a, button').filter({ hasText: /^get quote$/i }).first();
 
     // Provider Profile
     this.profileAvailableBadge   = page.locator('text=Available').first();
-    this.profileRequestQuoteBtn  = page.locator('button').filter({ hasText: /request a quote/i }).first();
-    this.profileGetQuoteBtn      = page.locator('a, button').filter({ hasText: /^get a quote$/i }).first();
+    this.profileRequestQuoteBtn  = page.locator('a, button').filter({ hasText: /request a quote/i }).first();
+    this.profileGetQuoteBtn      = page.locator('a, button').filter({ hasText: /get a quote/i }).first();
     this.profileReadyHeading     = page.locator('text=READY TO GET STARTED?');
   }
 

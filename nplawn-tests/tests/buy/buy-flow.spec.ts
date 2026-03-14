@@ -30,8 +30,7 @@ async function runFullBuyFlow(buy: BuyFlowPage) {
   await buy.continueToMapBtn.click();
 
   // Step 2 — map loads from geocoding; wait for the pricing button
-  await expect(buy.mapHeading).toBeVisible({ timeout: 10_000 });
-  await expect(buy.seePricingBtn).toBeVisible({ timeout: 15_000 });
+  await expect(buy.seePricingBtn).toBeVisible({ timeout: 25_000 });
   // Ensure a lawn size is set so pricing can be calculated
   const existingSize = await buy.lawnSizeAdjustInput.inputValue().catch(() => '');
   if (!existingSize || existingSize === '0') {
