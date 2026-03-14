@@ -76,29 +76,35 @@ test.describe('Quote Form @critical', () => {
     // Step 1: Fill personal details
     await quote.fillStep1(VALID_STEP1);
 
-    // Advance to step 2
+    // Advance to step 2 — .click() auto-scrolls so skip isVisible() gate
     const nextBtn = page.locator('button').filter({ hasText: /next|continue/i }).first();
-    if (await nextBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await nextBtn.click();
+    try {
+      await nextBtn.click({ timeout: 3_000 });
       await page.waitForTimeout(500);
+    } catch {
+      // no explicit next button — may be single-step form
     }
 
     // Step 2: Select a service and frequency
-    await quote.selectService('Lawn Mowing').catch(() => {
-      // Service buttons may not be visible if step 2 skipped — continue
+    await quote.selectService('Lawn Mowing').catch(async () => {
+      await page.locator('button').filter({ hasText: /lawn|mow/i }).first().click({ timeout: 2_000 }).catch(() => {});
     });
-    await quote.selectFrequency('Weekly').catch(() => {});
+    await quote.selectFrequency('Weekly').catch(async () => {
+      await page.locator('button').filter({ hasText: /week/i }).first().click({ timeout: 2_000 }).catch(() => {});
+    });
 
-    // Submit — try progressively broader selectors until one is visible
+    // Submit — .click() auto-scrolls; use try/catch instead of isVisible() gate
     const submitCandidates = [
-      page.locator('button[type="submit"]').last(),
       quote.submitButton,
+      page.locator('button[type="submit"]').last(),
       page.locator('button').last(),
     ];
     for (const btn of submitCandidates) {
-      if (await btn.isVisible({ timeout: 2_000 }).catch(() => false)) {
-        await btn.click();
+      try {
+        await btn.click({ timeout: 3_000 });
         break;
+      } catch {
+        // try next candidate
       }
     }
 
@@ -115,19 +121,27 @@ test.describe('Quote Form @critical', () => {
     await quote.fillStep1(VALID_STEP1);
 
     const nextBtn = page.locator('button').filter({ hasText: /next|continue/i }).first();
-    if (await nextBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await nextBtn.click();
+    try {
+      await nextBtn.click({ timeout: 3_000 });
       await page.waitForTimeout(500);
+    } catch {
+      // no explicit next button — may be single-step form
     }
-    await quote.selectService('Lawn Mowing').catch(() => {});
-    await quote.selectFrequency('Weekly').catch(() => {});
+    await quote.selectService('Lawn Mowing').catch(async () => {
+      await page.locator('button').filter({ hasText: /lawn|mow/i }).first().click({ timeout: 2_000 }).catch(() => {});
+    });
+    await quote.selectFrequency('Weekly').catch(async () => {
+      await page.locator('button').filter({ hasText: /week/i }).first().click({ timeout: 2_000 }).catch(() => {});
+    });
 
-    const submitBtn = page.locator('button[type="submit"]').last();
-    const reactSubmitBtn = quote.submitButton;
-    if (await submitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await submitBtn.click();
-    } else if (await reactSubmitBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await reactSubmitBtn.click();
+    // Submit — .click() auto-scrolls; use try/catch instead of isVisible() gate
+    for (const btn of [quote.submitButton, page.locator('button[type="submit"]').last(), page.locator('button').last()]) {
+      try {
+        await btn.click({ timeout: 3_000 });
+        break;
+      } catch {
+        // try next candidate
+      }
     }
 
     await page.waitForURL(/quote\/thanks/, { timeout: 15_000 });

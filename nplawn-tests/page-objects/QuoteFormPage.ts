@@ -51,7 +51,7 @@ export class QuoteFormPage {
     // Step 2
     this.propertySizeSelect = page.locator('select').filter({ hasText: /select approximate size/i });
     this.frequencyButtons   = page.locator('button[type="button"]').filter({ hasText: /weekly|monthly|one-time|quarterly/i });
-    this.submitButton       = page.locator('button').filter({ hasText: /submit|request quote|send|get quote|finish|complete/i }).last();
+    this.submitButton       = page.locator('button').filter({ hasText: /submit|request|send|get.*quote|finish|complete/i }).last();
 
     // Confirmation
     this.confirmationHeading = page.locator('h1').filter({ hasText: "You're all set" });
@@ -85,10 +85,10 @@ export class QuoteFormPage {
   }
 
   async selectService(serviceName: string) {
-    await this.page.locator('button[type="button"]').filter({ hasText: serviceName }).click();
+    await this.page.locator('button').filter({ hasText: serviceName }).first().click();
   }
 
   async selectFrequency(label: string) {
-    await this.page.locator('button[type="button"]').filter({ hasText: label }).click();
+    await this.page.locator('button').filter({ hasText: label }).first().click();
   }
 }
