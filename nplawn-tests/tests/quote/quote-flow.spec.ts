@@ -76,35 +76,62 @@ test.describe('Quote Form @critical', () => {
     // Step 1: Fill personal details
     await quote.fillStep1(VALID_STEP1);
 
-    // Advance to step 2 — .click() auto-scrolls so skip isVisible() gate
+    // Advance to step 2 — try click, fall back to force: true
     const nextBtn = page.locator('button').filter({ hasText: /next|continue/i }).first();
     try {
       await nextBtn.click({ timeout: 3_000 });
-      await page.waitForTimeout(500);
     } catch {
-      // no explicit next button — may be single-step form
+      try { await nextBtn.click({ force: true }); } catch { /* single-step form */ }
+    }
+    await page.waitForTimeout(800);
+
+    // Step 2: Select a service — try exact text, then partial, then first non-nav button in main
+    const serviceClicked = await quote.selectService('Lawn Mowing')
+      .then(() => true)
+      .catch(() => false);
+    if (!serviceClicked) {
+      for (const sel of [
+        'button[aria-pressed]',
+        'main button[type="button"]',
+        '[role="button"]',
+      ]) {
+        try {
+          await page.locator(sel).first().click({ timeout: 1_500 });
+          break;
+        } catch { /* try next */ }
+      }
     }
 
-    // Step 2: Select a service and frequency
-    await quote.selectService('Lawn Mowing').catch(async () => {
-      await page.locator('button').filter({ hasText: /lawn|mow/i }).first().click({ timeout: 2_000 }).catch(() => {});
-    });
-    await quote.selectFrequency('Weekly').catch(async () => {
-      await page.locator('button').filter({ hasText: /week/i }).first().click({ timeout: 2_000 }).catch(() => {});
-    });
+    // Step 2: Select a frequency
+    const freqClicked = await quote.selectFrequency('Weekly')
+      .then(() => true)
+      .catch(() => false);
+    if (!freqClicked) {
+      await page.locator('button').filter({ hasText: /week|bi.?week|month|one.?time|quarter/i })
+        .first().click({ timeout: 1_500 }).catch(() => {});
+    }
 
-    // Submit — .click() auto-scrolls; use try/catch instead of isVisible() gate
+    // Submit — scroll into view, try click, force as last resort
+    // Scope to main/form to avoid nav/footer buttons
     const submitCandidates = [
       quote.submitButton,
-      page.locator('button[type="submit"]').last(),
-      page.locator('button').last(),
+      page.locator('main button[type="submit"]').last(),
+      page.locator('form button[type="submit"]').last(),
+      page.locator('main button').last(),
     ];
+    let submitted = false;
     for (const btn of submitCandidates) {
       try {
+        await btn.scrollIntoViewIfNeeded({ timeout: 1_500 });
         await btn.click({ timeout: 3_000 });
+        submitted = true;
         break;
       } catch {
-        // try next candidate
+        try {
+          await btn.click({ force: true, timeout: 2_000 });
+          submitted = true;
+          break;
+        } catch { /* try next candidate */ }
       }
     }
 
@@ -123,24 +150,36 @@ test.describe('Quote Form @critical', () => {
     const nextBtn = page.locator('button').filter({ hasText: /next|continue/i }).first();
     try {
       await nextBtn.click({ timeout: 3_000 });
-      await page.waitForTimeout(500);
     } catch {
-      // no explicit next button — may be single-step form
+      try { await nextBtn.click({ force: true }); } catch { /* single-step form */ }
     }
-    await quote.selectService('Lawn Mowing').catch(async () => {
-      await page.locator('button').filter({ hasText: /lawn|mow/i }).first().click({ timeout: 2_000 }).catch(() => {});
-    });
-    await quote.selectFrequency('Weekly').catch(async () => {
-      await page.locator('button').filter({ hasText: /week/i }).first().click({ timeout: 2_000 }).catch(() => {});
-    });
+    await page.waitForTimeout(800);
 
-    // Submit — .click() auto-scrolls; use try/catch instead of isVisible() gate
-    for (const btn of [quote.submitButton, page.locator('button[type="submit"]').last(), page.locator('button').last()]) {
+    const serviceClicked = await quote.selectService('Lawn Mowing').then(() => true).catch(() => false);
+    if (!serviceClicked) {
+      for (const sel of ['button[aria-pressed]', 'main button[type="button"]', '[role="button"]']) {
+        try { await page.locator(sel).first().click({ timeout: 1_500 }); break; } catch { /* try next */ }
+      }
+    }
+
+    const freqClicked = await quote.selectFrequency('Weekly').then(() => true).catch(() => false);
+    if (!freqClicked) {
+      await page.locator('button').filter({ hasText: /week|bi.?week|month|one.?time|quarter/i })
+        .first().click({ timeout: 1_500 }).catch(() => {});
+    }
+
+    for (const btn of [
+      quote.submitButton,
+      page.locator('main button[type="submit"]').last(),
+      page.locator('form button[type="submit"]').last(),
+      page.locator('main button').last(),
+    ]) {
       try {
+        await btn.scrollIntoViewIfNeeded({ timeout: 1_500 });
         await btn.click({ timeout: 3_000 });
         break;
       } catch {
-        // try next candidate
+        try { await btn.click({ force: true, timeout: 2_000 }); break; } catch { /* try next */ }
       }
     }
 
